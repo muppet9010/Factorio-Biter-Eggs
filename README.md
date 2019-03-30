@@ -1,2 +1,3 @@
 # Factorio-Biter-Eggs
-Biters come from eggs obviously
+
+Eggs are neutral as unless attacked they are inert
