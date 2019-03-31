@@ -9,15 +9,16 @@ local function OnTick(event)
 end
 
 local function UpdateSetting(settingName)
-    --if settingName == "xxxxx" or settingName == nil then
-    --	local x = tonumber(settings.global["xxxxx"].value)
-    --end
+    if settingName == "biters-per-egg-nest" or settingName == nil then
+        global.Mod.Settings.eggNestBiterCount = tonumber(settings.global["biters-per-egg-nest"].value)
+    end
 end
 
 local function CreateGlobals()
     global.Mod = global.Mod or {}
     global.Mod.enemyProbabilities = global.Mod.enemyProbabilities or {}
     global.Mod.queuedEggActions = global.Mod.queuedEggActions or {}
+    global.Mod.Settings = global.Mod.Settings or {}
 end
 
 local function OnStartup()
