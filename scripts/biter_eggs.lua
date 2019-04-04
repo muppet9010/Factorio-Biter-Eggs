@@ -3,7 +3,7 @@ local Utils = require("utility/utils")
 
 function BiterEggs.OnEntityDied(event)
     local deadEntity = event.entity
-    if deadEntity.name ~= "biter-egg-nest" then
+    if deadEntity.name ~= "biter-egg-nest-large" and deadEntity.name ~= "biter-egg-nest-small" then
         return
     end
     local nextTick = event.tick + 1
@@ -13,7 +13,8 @@ function BiterEggs.OnEntityDied(event)
         {
             surface = deadEntity.surface,
             position = deadEntity.position,
-            force = deadEntity.force
+            force = deadEntity.force,
+            entityType = deadEntity.name
         }
     )
 end
@@ -34,8 +35,14 @@ function BiterEggs.CreateBiters(action)
     local surface = action.surface
     local targetPosition = action.position
     local biterForce = action.force
+    local eggNestType = action.entityType
 
-    local bitersToSpawn = global.Mod.Settings.eggNestBiterCount
+    local bitersToSpawn = 0
+    if eggNestType == "biter-egg-nest-large" then
+        bitersToSpawn = math.random(global.Mod.Settings.eggNestLargeBiterMinCount, global.Mod.Settings.eggNestLargeBiterMaxCount)
+    elseif eggNestType == "biter-egg-nest-small" then
+        bitersToSpawn = math.random(global.Mod.Settings.eggNestSmallBiterMinCount, global.Mod.Settings.eggNestSmallBiterMaxCount)
+    end
     if bitersToSpawn == 0 then
         return
     end

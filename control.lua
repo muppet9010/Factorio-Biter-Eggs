@@ -9,8 +9,17 @@ local function OnTick(event)
 end
 
 local function UpdateSetting(settingName)
-    if settingName == "biters-per-egg-nest" or settingName == nil then
-        global.Mod.Settings.eggNestBiterCount = tonumber(settings.global["biters-per-egg-nest"].value)
+    if settingName == "biters-per-large-egg-nest-min" or settingName == nil then
+        global.Mod.Settings.eggNestLargeBiterMinCount = tonumber(settings.global["biters-per-large-egg-nest-min"].value)
+    end
+    if settingName == "biters-per-large-egg-nest-max" or settingName == nil then
+        global.Mod.Settings.eggNestLargeBiterMaxCount = tonumber(settings.global["biters-per-large-egg-nest-max"].value)
+    end
+    if settingName == "biters-per-small-egg-nest-min" or settingName == nil then
+        global.Mod.Settings.eggNestSmallBiterMinCount = tonumber(settings.global["biters-per-small-egg-nest-min"].value)
+    end
+    if settingName == "biters-per-small-egg-nest-max" or settingName == nil then
+        global.Mod.Settings.eggNestSmallBiterMaxCount = tonumber(settings.global["biters-per-small-egg-nest-max"].value)
     end
 end
 
