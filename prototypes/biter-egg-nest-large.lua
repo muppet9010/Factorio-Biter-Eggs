@@ -26,7 +26,7 @@ data:extend(
             flags = {"placeable-player", "placeable-enemy", "not-flammable", "not-repairable", "placeable-off-grid"},
             icon = Constants.AssetModName .. "/graphics/icon/biter-egg-nest-large-1.png",
             icon_size = 242,
-            max_health = 50,
+            max_health = 100,
             subgroup = "enemies",
             order = "b-b-j",
             resistances = {
