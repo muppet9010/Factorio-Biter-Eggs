@@ -1,4 +1,5 @@
 local Constants = require("constants")
+local Utils = require("utility/utils")
 
 local function egg_nest_small_autoplace_settings(multiplier, order_suffix)
     local name = "enemy-egg-nest-small"
@@ -41,10 +42,14 @@ data:extend(
             vehicle_impact_sound = {filename = "__base__/sound/car-stone-impact.ogg", volume = 1.0},
             render_layer = "object",
             picture = {
-                filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-small-1.png",
-                width = 125,
-                height = 100,
-                scale = 0.8
+                layers = {
+                    {
+                        filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-small-1.png",
+                        width = 125,
+                        height = 100,
+                        scale = 0.8
+                    }
+                }
             },
             corpse = "biter-egg-nest-small-corpse",
             dying_explosion = "blood-explosion-big",
@@ -64,6 +69,7 @@ data:extend(
             order = "c[corpse]-b[biter-eggs]",
             final_render_layer = "remnants",
             animation = {
+                layers = {
                 {
                     width = 125,
                     height = 100,
@@ -73,6 +79,7 @@ data:extend(
                     filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-small-1-corpse.png"
                 }
             }
+            }
         },
         {
             type = "noise-layer",
@@ -80,3 +87,15 @@ data:extend(
         }
     }
 )
+
+if mods["BigWinter"] ~= nil then
+    local biterEggNestSmall = data.raw["simple-entity-with-force"]["biter-egg-nest-small"]
+    local biterEggNestSmallSnowLayer = Utils.DeepCopy(biterEggNestSmall.picture.layers[1])
+    biterEggNestSmallSnowLayer.filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-small-1-snow-layer.png"
+    table.insert(biterEggNestSmall.picture.layers, biterEggNestSmallSnowLayer)
+
+    local biterEggNestSmallCorpse = data.raw["corpse"]["biter-egg-nest-small-corpse"]
+    local biterEggNestSmallCorpseSnowLayer = Utils.DeepCopy(biterEggNestSmallCorpse.animation.layers[1])
+    biterEggNestSmallCorpseSnowLayer.filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-small-1-snow-layer.png"
+    table.insert(biterEggNestSmallCorpse.animation.layers, biterEggNestSmallCorpseSnowLayer)
+end
