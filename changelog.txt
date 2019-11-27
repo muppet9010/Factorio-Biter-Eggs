@@ -2,6 +2,7 @@
 Version: 17.0.1
 Date: 2019-11-27
   Features:
+    - If BigWinter mod is present the egg nests have a snowy feel to them.
   Changes:
     - Biters per small egg nest setting default changed from 0 to 1.
   Bugfixes:

@@ -1,4 +1,5 @@
 local Constants = require("constants")
+local Utils = require("utility/utils")
 
 local function egg_nest_large_autoplace_settings(multiplier, order_suffix)
     local name = "enemy-egg-nest-large"
@@ -41,10 +42,14 @@ data:extend(
             vehicle_impact_sound = {filename = "__base__/sound/car-stone-impact.ogg", volume = 1.0},
             render_layer = "object",
             picture = {
-                filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-large-1.png",
-                width = 600,
-                height = 300,
-                scale = 0.4
+                layers = {
+                    {
+                        filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-large-1.png",
+                        width = 600,
+                        height = 300,
+                        scale = 0.4
+                    }
+                }
             },
             corpse = "biter-egg-nest-large-corpse",
             dying_explosion = "blood-explosion-big",
@@ -64,13 +69,15 @@ data:extend(
             order = "c[corpse]-b[biter-eggs]",
             final_render_layer = "remnants",
             animation = {
-                {
-                    width = 600,
-                    height = 300,
-                    scale = 0.4,
-                    frame_count = 1,
-                    direction_count = 1,
-                    filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-large-1-corpse.png"
+                layers = {
+                    {
+                        width = 600,
+                        height = 300,
+                        scale = 0.4,
+                        frame_count = 1,
+                        direction_count = 1,
+                        filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-large-1-corpse.png"
+                    }
                 }
             }
         },
@@ -80,3 +87,15 @@ data:extend(
         }
     }
 )
+
+if mods["BigWinter"] ~= nil then
+    local biterEggNestLarge = data.raw["simple-entity-with-force"]["biter-egg-nest-large"]
+    local biterEggNestLargeSnowLayer = Utils.DeepCopy(biterEggNestLarge.picture.layers[1])
+    biterEggNestLargeSnowLayer.filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-large-1-snow-layer.png"
+    table.insert(biterEggNestLarge.picture.layers, biterEggNestLargeSnowLayer)
+
+    local biterEggNestLargeCorpse = data.raw["corpse"]["biter-egg-nest-large-corpse"]
+    local biterEggNestLargeCorpseSnowLayer = Utils.DeepCopy(biterEggNestLargeCorpse.animation.layers[1])
+    biterEggNestLargeCorpseSnowLayer.filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-large-1-snow-layer.png"
+    table.insert(biterEggNestLargeCorpse.animation.layers, biterEggNestLargeCorpseSnowLayer)
+end
