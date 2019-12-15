@@ -1,38 +1,23 @@
 local BiterEggs = require("scripts/biter_eggs")
-
-local function OnEntityDied(event)
-    BiterEggs.OnEntityDied(event)
-end
-
-local function OnTick(event)
-    BiterEggs.OnTick(event)
-end
+local Events = require("utility/events")
+local EventScheduler = require("utility/event-scheduler")
 
 local function UpdateSetting(settingName)
-    if settingName == "biters-per-large-egg-nest-min" or settingName == nil then
-        global.Mod.Settings.eggNestLargeBiterMinCount = tonumber(settings.global["biters-per-large-egg-nest-min"].value)
-    end
-    if settingName == "biters-per-large-egg-nest-max" or settingName == nil then
-        global.Mod.Settings.eggNestLargeBiterMaxCount = tonumber(settings.global["biters-per-large-egg-nest-max"].value)
-    end
-    if settingName == "biters-per-small-egg-nest-min" or settingName == nil then
-        global.Mod.Settings.eggNestSmallBiterMinCount = tonumber(settings.global["biters-per-small-egg-nest-min"].value)
-    end
-    if settingName == "biters-per-small-egg-nest-max" or settingName == nil then
-        global.Mod.Settings.eggNestSmallBiterMaxCount = tonumber(settings.global["biters-per-small-egg-nest-max"].value)
-    end
+    BiterEggs.UpdateSetting(settingName)
 end
 
 local function CreateGlobals()
-    global.Mod = global.Mod or {}
-    global.Mod.enemyProbabilities = global.Mod.enemyProbabilities or {}
-    global.Mod.queuedEggActions = global.Mod.queuedEggActions or {}
-    global.Mod.Settings = global.Mod.Settings or {}
+    BiterEggs.CreateGlobals()
+end
+
+local function OnLoad()
+    BiterEggs.OnLoad()
 end
 
 local function OnStartup()
     CreateGlobals()
     UpdateSetting(nil)
+    OnLoad()
 end
 
 local function OnSettingChanged(event)
@@ -41,6 +26,7 @@ end
 
 script.on_init(OnStartup)
 script.on_configuration_changed(OnStartup)
+script.on_load(OnLoad)
 script.on_event(defines.events.on_runtime_mod_setting_changed, OnSettingChanged)
-script.on_event(defines.events.on_entity_died, OnEntityDied)
-script.on_event(defines.events.on_tick, OnTick)
+Events.RegisterEvent(defines.events.on_entity_died, "EggNests", {{filter = "name", name = "biter-egg-nest-large"}, {filter = "name", name = "biter-egg-nest-small"}})
+EventScheduler.RegisterScheduler()
