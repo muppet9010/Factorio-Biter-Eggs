@@ -38,7 +38,8 @@ BiterEggs.OnEntityDiedEggNests = function(event)
             surface = deadEntity.surface,
             position = deadEntity.position,
             force = deadEntity.force,
-            entityType = deadEntity.name
+            entityType = deadEntity.name,
+            killerEntity = event.cause
         }
     )
 end
@@ -48,6 +49,7 @@ BiterEggs.CreateBiters = function(event)
     local targetPosition = event.data.position
     local biterForce = event.data.force
     local eggNestType = event.data.entityType
+    local attackCommandTarget = event.data.killerEntity
 
     local bitersToSpawn = 0
     if eggNestType == "biter-egg-nest-large" then
@@ -61,12 +63,22 @@ BiterEggs.CreateBiters = function(event)
     local spawnerTypes = {"biter-spawner", "spitter-spawner"}
     local eggSpawnerType = spawnerTypes[math.random(2)]
     local evolution = Utils.RoundNumberToDecimalPlaces(biterForce.evolution_factor, 3)
+    local unitGroup
+    if attackCommandTarget ~= nil and attackCommandTarget.valid then
+        unitGroup = surface.create_unit_group {position = targetPosition, force = biterForce}
+    end
     for i = 1, bitersToSpawn do
         local biterType = Utils.GetBiterType(global.enemyProbabilities, eggSpawnerType, evolution)
         local foundPosition = surface.find_non_colliding_position(biterType, targetPosition, 0, 1)
         if foundPosition ~= nil then
-            surface.create_entity {name = biterType, position = foundPosition, force = biterForce, raise_built = true}
+            local biter = surface.create_entity {name = biterType, position = foundPosition, force = biterForce, raise_built = true}
+            if biter ~= nil and unitGroup ~= nil then
+                unitGroup.add_member(biter)
+            end
         end
+    end
+    if unitGroup ~= nil then
+        unitGroup.set_command({type = defines.command.go_to_location, destination = attackCommandTarget.position})
     end
 end
 
