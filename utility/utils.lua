@@ -2,12 +2,12 @@ local Utils = {}
 --local Logging = require("utility/logging")
 local factorioUtil = require("__core__/lualib/util")
 Utils.DeepCopy = factorioUtil.table.deepcopy
-Utils.TableMerge = factorioUtil.merge
+Utils.TableMerge = factorioUtil.merge -- takes an array of tables and returns a new table with copies of their contents
 
-function Utils.KillAllKillableObjectsInArea(surface, positionedBoundingBox, killerEntity, collisionBoxOnlyEntities)
+function Utils.KillAllKillableObjectsInArea(surface, positionedBoundingBox, killerEntity, collisionBoxOnlyEntities, force)
     local entitiesFound = surface.find_entities(positionedBoundingBox)
     for k, entity in pairs(entitiesFound) do
-        if entity.valid then
+        if entity.valid and (force == nil or entity.force == force) then
             if entity.health ~= nil and entity.destructible and ((collisionBoxOnlyEntities and Utils.IsCollisionBoxPopulated(entity.prototype.collision_box)) or (not collisionBoxOnlyEntities)) then
                 if killerEntity ~= nil then
                     entity.die("neutral", killerEntity)
@@ -19,10 +19,10 @@ function Utils.KillAllKillableObjectsInArea(surface, positionedBoundingBox, kill
     end
 end
 
-function Utils.KillAllObjectsInArea(surface, positionedBoundingBox, killerEntity)
+function Utils.KillAllObjectsInArea(surface, positionedBoundingBox, killerEntity, force)
     local entitiesFound = surface.find_entities(positionedBoundingBox)
     for k, entity in pairs(entitiesFound) do
-        if entity.valid then
+        if entity.valid and (force == nil or entity.force == force) then
             if entity.destructible then
                 if killerEntity ~= nil then
                     entity.die("neutral", killerEntity)
@@ -36,10 +36,10 @@ function Utils.KillAllObjectsInArea(surface, positionedBoundingBox, killerEntity
     end
 end
 
-function Utils.DestroyAllKillableObjectsInArea(surface, positionedBoundingBox, collisionBoxOnlyEntities)
+function Utils.DestroyAllKillableObjectsInArea(surface, positionedBoundingBox, collisionBoxOnlyEntities, force)
     local entitiesFound = surface.find_entities(positionedBoundingBox)
     for k, entity in pairs(entitiesFound) do
-        if entity.valid then
+        if entity.valid and (force == nil or entity.force == force) then
             if entity.health ~= nil and entity.destructible and ((collisionBoxOnlyEntities and Utils.IsCollisionBoxPopulated(entity.prototype.collision_box)) or (not collisionBoxOnlyEntities)) then
                 entity.destroy({dp_cliff_correction = true, raise_destroy = false})
             end
@@ -47,10 +47,10 @@ function Utils.DestroyAllKillableObjectsInArea(surface, positionedBoundingBox, c
     end
 end
 
-function Utils.DestroyAllObjectsInArea(surface, positionedBoundingBox)
+function Utils.DestroyAllObjectsInArea(surface, positionedBoundingBox, force)
     local entitiesFound = surface.find_entities(positionedBoundingBox)
     for k, entity in pairs(entitiesFound) do
-        if entity.valid then
+        if entity.valid and (force == nil or entity.force == force) then
             entity.destroy({dp_cliff_correction = true, raise_destroy = false})
         end
     end
@@ -80,7 +80,7 @@ function Utils.TableToProperPosition(thing)
     elseif thing.x ~= nil and thing.y ~= nil then
         return {x = thing.x, y = thing.y}
     else
-        return {x = thing[1], y = thing[1]}
+        return {x = thing[1], y = thing[2]}
     end
 end
 
@@ -113,6 +113,10 @@ function Utils.ApplyBoundingBoxToPosition(centrePos, boundingBox, orientation)
     else
         game.print("Error: Diagonal orientations not supported by Utils.ApplyBoundingBoxToPosition()")
     end
+end
+
+function Utils.RoundPosition(pos, numDecimalPlaces)
+    return {x = Utils.RoundNumberToDecimalPlaces(pos.x, numDecimalPlaces), y = Utils.RoundNumberToDecimalPlaces(pos.y, numDecimalPlaces)}
 end
 
 function Utils.GetChunkPositionForTilePosition(pos)
@@ -212,6 +216,19 @@ function Utils.RoundNumberToDecimalPlaces(num, numDecimalPlaces)
     return result
 end
 
+function Utils.HandleFloatNumberAsChancedValue(value)
+    local intValue = math.floor(value)
+    local partialValue = value - intValue
+    local chancedValue = intValue
+    if partialValue ~= 0 then
+        local rand = math.random()
+        if rand >= partialValue then
+            chancedValue = chancedValue + 1
+        end
+    end
+    return chancedValue
+end
+
 --This doesn't guarentee correct on some of the edge cases, but is as close as possible assuming that 1/256 is the variance for the same number (Bilka, Dev on Discord)
 function Utils.FuzzyCompareDoubles(num1, logic, num2)
     local numDif = num1 - num2
@@ -255,20 +272,10 @@ function Utils.FuzzyCompareDoubles(num1, logic, num2)
     end
 end
 
-function Utils.GetTableLength(table)
+function Utils.GetTableNonNilLength(table)
     local count = 0
     for _ in pairs(table) do
         count = count + 1
-    end
-    return count
-end
-
-function Utils.GetTableNonNilLength(table)
-    local count = 0
-    for k, v in pairs(table) do
-        if v ~= nil then
-            count = count + 1
-        end
     end
     return count
 end
@@ -354,7 +361,7 @@ function Utils._TableContentsToJSON(target_table, name, tablesLogged, indent, st
     local indentstring = string.rep(" ", (indent * 4))
     tablesLogged[target_table] = "logged"
     local table_contents = ""
-    if Utils.GetTableLength(target_table) > 0 then
+    if Utils.GetTableNonNilLength(target_table) > 0 then
         for k, v in pairs(target_table) do
             local key, value
             if type(k) == "string" or type(k) == "number" or type(k) == "boolean" then
@@ -423,6 +430,15 @@ function Utils.GetTableKeyWithValue(theTable, value)
     for k, v in pairs(theTable) do
         if v == value then
             return k
+        end
+    end
+    return nil
+end
+
+function Utils.GetTableKeyWithInnerKeyValue(theTable, key, value)
+    for i, innerTable in pairs(theTable) do
+        if innerTable[key] ~= nil and innerTable[key] == value then
+            return i
         end
     end
     return nil
@@ -567,6 +583,9 @@ function Utils.PadNumberToMinimumDigits(input, requiredLength)
 end
 
 function Utils.DisplayNumberPretty(number)
+    if number == nil then
+        return ""
+    end
     local formatted = number
     local k
     while true do
@@ -642,6 +661,7 @@ function Utils.DisplayTimeOfTicks(inputTicks, displayLargestTimeUnit, displaySma
 end
 
 function Utils._CreatePlacementTestEntityPrototype(entityToClone, newEntityName, subgroup, collisionMask)
+    --TODO: doesn't handle mipmaps at all presently. Also ignores any of the extra data in an icons table of "Types/IconData". Think this should just duplicate the target icons table entry.
     local clonedIcon = entityToClone.icon
     local clonedIconSize = entityToClone.icon_size
     if clonedIcon == nil then
@@ -737,6 +757,50 @@ function Utils.GetPositionForAngledDistance(startingPos, distance, angle)
         y = (distance * -math.cos(angleRad)) + startingPos.y
     }
     return newPos
+end
+
+function Utils.FindWhereLineCrossesCircle(radius, slope, yIntercept)
+    local centerPos = {x = 0, y = 0}
+    local A = 1 + slope * slope
+    local B = -2 * centerPos.x + 2 * slope * yIntercept - 2 * centerPos.y * slope
+    local C = centerPos.x * centerPos.x + yIntercept * yIntercept + centerPos.y * centerPos.y - 2 * centerPos.y * yIntercept - radius * radius
+    local delta = B * B - 4 * A * C
+
+    if delta < 0 then
+        return nil, nil
+    else
+        local x1 = (-B + math.sqrt(delta)) / (2 * A)
+
+        local x2 = (-B - math.sqrt(delta)) / (2 * A)
+
+        local y1 = slope * x1 + yIntercept
+
+        local y2 = slope * x2 + yIntercept
+
+        local pos1 = {x = x1, y = y1}
+        local pos2 = {x = x2, y = y2}
+        if pos1 == pos2 then
+            return pos1, nil
+        else
+            return pos1, pos2
+        end
+    end
+end
+
+function Utils.IsPositionWithinCircled(circleCenter, radius, position)
+    local deltaX = math.abs(position.x - circleCenter.x)
+    local deltaY = math.abs(position.y - circleCenter.y)
+    if deltaX + deltaY <= radius then
+        return true
+    elseif deltaX > radius then
+        return false
+    elseif deltaY > radius then
+        return false
+    elseif deltaX ^ 2 + deltaY ^ 2 <= radius ^ 2 then
+        return true
+    else
+        return false
+    end
 end
 
 return Utils

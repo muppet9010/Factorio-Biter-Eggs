@@ -4,7 +4,8 @@ local Events = require("utility/events")
 local EventScheduler = require("utility/event-scheduler")
 
 BiterEggs.OnLoad = function()
-    Events.RegisterHandler(defines.events.on_entity_died, "BiterEggs", BiterEggs.OnEntityDiedEggNests, "EggNests")
+    Events.RegisterEvent(defines.events.on_entity_died, "EggNests", {{filter = "name", name = "biter-egg-nest-large"}, {filter = "name", name = "biter-egg-nest-small"}})
+    Events.RegisterHandler(defines.events.on_entity_died, "BiterEggs.OnEntityDiedEggNests", BiterEggs.OnEntityDiedEggNests)
     EventScheduler.RegisterScheduledEventType("BiterEggs.CreateBiters", BiterEggs.CreateBiters)
 end
 
