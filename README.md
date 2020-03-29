@@ -10,12 +10,8 @@ When a biter egg nest is destroyed a configurable range of either biters or spit
 
 If BigWinter mod is present the egg nests have a snowy feel to them.
 
+Killing egg nests does not increase evolution and they only react when killed. Egg nests are on the enemy team and so will be targeted by turrets and players auto target fire.
+
 Contributors
 -----------
 Thanks to Hornwitser for some egg nest graphics.
-
-
-Concepts if the mo is taken further:
-------------
- - When spawner dies it becomes a dead spawner with eggs, effectively a large egg nest.
- - See if the noise generation can be used nicely with the ingame sliders. Initial testing not successful.

@@ -456,55 +456,6 @@ function Utils.WasCreativeModeInstantDeconstructionUsed(event)
     end
 end
 
-function Utils.GetBiterType(modEnemyProbabilities, spawnerType, evolution)
-    --modEnemyProbabilities argument is a global variable thats passed in for the utility function can use. do not set in any way before hand.
-    modEnemyProbabilities = modEnemyProbabilities or {}
-    if modEnemyProbabilities[spawnerType] == nil then
-        modEnemyProbabilities[spawnerType] = {}
-    end
-    evolution = Utils.RoundNumberToDecimalPlaces(evolution, 2)
-    if modEnemyProbabilities[spawnerType].calculatedEvolution == nil or modEnemyProbabilities[spawnerType].calculatedEvolution == evolution then
-        modEnemyProbabilities[spawnerType].calculatedEvolution = evolution
-        modEnemyProbabilities[spawnerType].probabilities = Utils._CalculateSpecificBiterSelectionProbabilities(spawnerType, evolution)
-    end
-    return Utils.GetRandomEntryFromNormalisedDataSet(modEnemyProbabilities[spawnerType].probabilities, "chance").unit
-end
-
-function Utils._CalculateSpecificBiterSelectionProbabilities(spawnerType, currentEvolution)
-    local rawUnitProbs = game.entity_prototypes[spawnerType].result_units
-    local currentEvolutionProbabilities = {}
-    for _, possibility in pairs(rawUnitProbs) do
-        local startSpawnPointIndex = nil
-        for spawnPointIndex, spawnPoint in pairs(possibility.spawn_points) do
-            if spawnPoint.evolution_factor <= currentEvolution then
-                startSpawnPointIndex = spawnPointIndex
-            end
-        end
-        if startSpawnPointIndex ~= nil then
-            local startSpawnPoint = possibility.spawn_points[startSpawnPointIndex]
-            local endSpawnPoint
-            if possibility.spawn_points[startSpawnPointIndex + 1] ~= nil then
-                endSpawnPoint = possibility.spawn_points[startSpawnPointIndex + 1]
-            else
-                endSpawnPoint = {evolution_factor = 1.0, weight = startSpawnPoint.weight}
-            end
-
-            local weight
-            if startSpawnPoint.evolution_factor ~= endSpawnPoint.evolution_factor then
-                local evoRange = endSpawnPoint.evolution_factor - startSpawnPoint.evolution_factor
-                local weightRange = endSpawnPoint.weight - startSpawnPoint.weight
-                local evoRangeMultiplier = (currentEvolution - startSpawnPoint.evolution_factor) / evoRange
-                weight = (weightRange * evoRangeMultiplier) + startSpawnPoint.weight
-            else
-                weight = startSpawnPoint.weight
-            end
-            table.insert(currentEvolutionProbabilities, {chance = weight, unit = possibility.unit})
-        end
-    end
-    local normalisedcurrentEvolutionProbabilities = Utils.NormaliseChanceList(currentEvolutionProbabilities, "chance")
-    return normalisedcurrentEvolutionProbabilities
-end
-
 function Utils.NormaliseChanceList(dataSet, chancePropertyName)
     local totalChance = 0
     for _, v in pairs(dataSet) do

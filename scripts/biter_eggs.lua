@@ -2,6 +2,7 @@ local BiterEggs = {}
 local Utils = require("utility/utils")
 local Events = require("utility/events")
 local EventScheduler = require("utility/event-scheduler")
+local BiterSelection = require("utility/functions/biter-selection")
 
 BiterEggs.OnLoad = function()
     Events.RegisterEvent(defines.events.on_entity_died, "EggNests", {{filter = "name", name = "biter-egg-nest-large"}, {filter = "name", name = "biter-egg-nest-small"}})
@@ -10,7 +11,6 @@ BiterEggs.OnLoad = function()
 end
 
 BiterEggs.CreateGlobals = function()
-    global.enemyProbabilities = global.enemyProbabilities or {}
     global.Settings = global.Settings or {}
 end
 
@@ -69,7 +69,7 @@ BiterEggs.CreateBiters = function(event)
         unitGroup = surface.create_unit_group {position = targetPosition, force = biterForce}
     end
     for i = 1, bitersToSpawn do
-        local biterType = Utils.GetBiterType(global.enemyProbabilities, eggSpawnerType, evolution)
+        local biterType = BiterSelection.GetBiterType(eggSpawnerType, evolution)
         local foundPosition = surface.find_non_colliding_position(biterType, targetPosition, 0, 1)
         if foundPosition ~= nil then
             local biter = surface.create_entity {name = biterType, position = foundPosition, force = biterForce, raise_built = true}
