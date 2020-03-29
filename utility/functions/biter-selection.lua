@@ -1,5 +1,5 @@
 --[[
-
+    Can get random biter types and worm type for specified evolution level.
 ]]
 local Utils = require("utility/utils")
 --local Logging = require("utility/logging")
@@ -14,7 +14,7 @@ function BiterSelection.GetBiterType(spawnerType, evolution)
         modEnemyProbabilities[spawnerType] = {}
     end
     evolution = Utils.RoundNumberToDecimalPlaces(evolution, 2)
-    if modEnemyProbabilities[spawnerType].calculatedEvolution == nil or modEnemyProbabilities[spawnerType].calculatedEvolution == evolution then
+    if modEnemyProbabilities[spawnerType].calculatedEvolution == nil or modEnemyProbabilities[spawnerType].calculatedEvolution ~= evolution then
         modEnemyProbabilities[spawnerType].calculatedEvolution = evolution
         modEnemyProbabilities[spawnerType].probabilities = BiterSelection._CalculateSpecificBiterSelectionProbabilities(spawnerType, evolution)
     end
@@ -54,6 +54,44 @@ function BiterSelection._CalculateSpecificBiterSelectionProbabilities(spawnerTyp
     end
     local normalisedcurrentEvolutionProbabilities = Utils.NormaliseChanceList(currentEvolutionProbabilities, "chance")
     return normalisedcurrentEvolutionProbabilities
+end
+
+function BiterSelection.GetWormType(evolution)
+    global.UTILITYBITERSELECTION = global.UTILITYBITERSELECTION or {}
+    global.UTILITYBITERSELECTION.wormEvoType = global.UTILITYBITERSELECTION.wormEvoType or {}
+
+    local wormEvoType = global.UTILITYBITERSELECTION.wormEvoType
+    evolution = Utils.RoundNumberToDecimalPlaces(evolution, 2)
+    if wormEvoType.calculatedEvolution == nil or wormEvoType.calculatedEvolution ~= evolution then
+        wormEvoType.calculatedEvolution = evolution
+        wormEvoType.name = BiterSelection._CalculateSpecificWormForEvolution(evolution)
+    end
+    return wormEvoType.name
+end
+
+function BiterSelection._CalculateSpecificWormForEvolution(evolution)
+    local turrets = game.get_filtered_entity_prototypes({{filter = "turret"}})
+    local enemyTurrets = {}
+    for _, turret in pairs(turrets) do
+        if turret.subgroup ~= nil and turret.subgroup.name == "enemies" then
+            local autoplaceEvo = turret.build_base_evolution_requirement or 0
+            if autoplaceEvo <= evolution then
+                enemyTurrets[autoplaceEvo] = turret
+            end
+        end
+    end
+    local selectedTurret, maxEvo = nil, -1
+    for evo, turret in pairs(enemyTurrets) do
+        if evo > maxEvo then
+            selectedTurret = turret
+            maxEvo = evo
+        end
+    end
+    if selectedTurret == nil then
+        return nil
+    else
+        return selectedTurret.name
+    end
 end
 
 return BiterSelection

@@ -7,7 +7,7 @@ local BiterSelection = require("utility/functions/biter-selection")
 BiterEggs.OnLoad = function()
     Events.RegisterEvent(defines.events.on_entity_died, "EggNests", {{filter = "name", name = "biter-egg-nest-large"}, {filter = "name", name = "biter-egg-nest-small"}})
     Events.RegisterHandler(defines.events.on_entity_died, "BiterEggs.OnEntityDiedEggNests", BiterEggs.OnEntityDiedEggNests)
-    EventScheduler.RegisterScheduledEventType("BiterEggs.CreateBiters", BiterEggs.CreateBiters)
+    EventScheduler.RegisterScheduledEventType("BiterEggs.EggPostDestroyed", BiterEggs.EggPostDestroyed)
 end
 
 BiterEggs.CreateGlobals = function()
@@ -33,7 +33,7 @@ BiterEggs.OnEntityDiedEggNests = function(event)
     local deadEntity = event.entity
     EventScheduler.ScheduleEvent(
         event.tick + 1,
-        "BiterEggs.CreateBiters",
+        "BiterEggs.EggPostDestroyed",
         deadEntity.unit_number,
         {
             surface = deadEntity.surface,
@@ -43,6 +43,14 @@ BiterEggs.OnEntityDiedEggNests = function(event)
             killerEntity = event.cause
         }
     )
+end
+
+BiterEggs.EggPostDestroyed = function(event)
+    NEED to choose if to place worm, biters or nothing.
+    local biterForce = event.data.force
+    local evolution = Utils.RoundNumberToDecimalPlaces(biterForce.evolution_factor, 3)
+    local wormType = BiterSelection.GetWormType(evolution)
+    BiterEggs.CreateBiters(event)
 end
 
 BiterEggs.CreateBiters = function(event)
