@@ -8,6 +8,7 @@ MOD.eventFilters = MOD.eventFilters or {}
 
 -- Called either from the root of Control.lua or from OnLoad for vanilla events and custom events.
 -- Filtered events have to expect to recieve results outside of their filter. As an event can only be registered one time, with multiple instances the most lienient or merged filters for all instances must be applied.
+-- Returns the eventId, useful for  custom event names when you need to store the eventId to return via a remote interface call.
 Events.RegisterEvent = function(eventName, thisFilterName, thisFilterData)
     if eventName == nil then
         error("Events.RegisterEvent called with missing arguments")
@@ -39,6 +40,7 @@ Events.RegisterEvent = function(eventName, thisFilterName, thisFilterData)
         MOD.customEventNameToId[eventName] = eventId
     end
     script.on_event(eventId, Events._HandleEvent, filterData)
+    return eventId
 end
 
 --Called from the root of Control.lua for custom inputs (key bindings) as their names are handled specially.

@@ -10,6 +10,7 @@ local function CreateGlobals()
 end
 
 local function OnLoad()
+    --Any Remote Interface registration calls can go in here or in root of control.lua
     BiterEggs.OnLoad()
 end
 

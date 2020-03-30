@@ -9,6 +9,17 @@ BiterEggs.OnLoad = function()
     Events.RegisterEvent(defines.events.on_entity_died, "EggNests", {{filter = "name", name = "biter-egg-nest-large"}, {filter = "name", name = "biter-egg-nest-small"}})
     Events.RegisterHandler(defines.events.on_entity_died, "BiterEggs.OnEntityDiedEggNests", BiterEggs.OnEntityDiedEggNests)
     EventScheduler.RegisterScheduledEventType("BiterEggs.EggPostDestroyed", BiterEggs.EggPostDestroyed)
+
+    local eggPostDestroyed_eventId = Events.RegisterEvent("BiterEggs.EggPostDestroyed")
+    remote.remove_interface("biter_eggs")
+    remote.add_interface(
+        "biter_eggs",
+        {
+            get_egg_post_destroyed_event_id = function()
+                return eggPostDestroyed_eventId
+            end
+        }
+    )
 end
 
 BiterEggs.CreateGlobals = function()
@@ -71,6 +82,7 @@ BiterEggs.UpdateSetting = function(settingName)
 end
 
 BiterEggs.OnEntityDiedEggNests = function(event)
+    local x = remote.call("biter_eggs", "get_egg_post_destroyed_event_id")
     local deadEntity = event.entity
     EventScheduler.ScheduleEvent(
         event.tick + 1,
@@ -89,11 +101,14 @@ end
 BiterEggs.EggPostDestroyed = function(event)
     local eggNestDetails = event.data
     local actionChance = Utils.GetRandomEntryFromNormalisedDataSet(global.Settings.eggNedstDiedActionChanceList, "chance")
-    --TODO raise event before the function may return
+    local actionName
+    if actionChance ~= nil then
+        actionName = actionChance.name
+    end
+    Events.RaiseEvent({name = "BiterEggs.EggPostDestroyed", actionName = actionName})
     if actionChance == nil then
         return
     end
-    local actionName = actionChance.name
     if actionName == "biters" then
         BiterEggs.CreateBiters(eggNestDetails)
     elseif actionName == "worms" then
