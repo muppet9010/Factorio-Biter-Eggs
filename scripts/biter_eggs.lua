@@ -1,6 +1,7 @@
 local BiterEggs = {}
 local Utils = require("utility/utils")
 local Events = require("utility/events")
+local Logging = require("utility/logging")
 local EventScheduler = require("utility/event-scheduler")
 local BiterSelection = require("utility/functions/biter-selection")
 
@@ -88,6 +89,10 @@ end
 BiterEggs.EggPostDestroyed = function(event)
     local eggNestDetails = event.data
     local actionChance = Utils.GetRandomEntryFromNormalisedDataSet(global.Settings.eggNedstDiedActionChanceList, "chance")
+    --TODO raise event before the function may return
+    if actionChance == nil then
+        return
+    end
     local actionName = actionChance.name
     if actionName == "biters" then
         BiterEggs.CreateBiters(eggNestDetails)
@@ -140,9 +145,10 @@ BiterEggs.CreateWorms = function(eggNestDetails)
     local biterForce = eggNestDetails.force
     local eggNestType = eggNestDetails.entityType
 
-    local wormsToSpawn = 0
+    local wormsToSpawn, randomRadius, singleWormXRandomOffset = 0, 0.5, 0
     if eggNestType == "biter-egg-nest-large" then
         wormsToSpawn = math.random(global.Settings.eggNestLargeWormMinCount, global.Settings.eggNestLargeWormMaxCount)
+        singleWormXRandomOffset = 1
     elseif eggNestType == "biter-egg-nest-small" then
         wormsToSpawn = math.random(global.Settings.eggNestSmallWormMinCount, global.Settings.eggNestSmallWormMaxCount)
     end
@@ -152,7 +158,18 @@ BiterEggs.CreateWorms = function(eggNestDetails)
 
     local evolution = Utils.RoundNumberToDecimalPlaces(biterForce.evolution_factor, 3)
     local wormType = BiterSelection.GetWormType(evolution)
-    surface.create_entity {name = wormType, position = targetPosition, force = biterForce, raise_built = true}
+    if wormsToSpawn == 1 then
+        local xOffset = {x = Utils.GetRandomFloatInRange(0 - singleWormXRandomOffset, singleWormXRandomOffset), y = 0}
+        local pos = Utils.RandomLocationInRadius(Utils.ApplyOffsetToPosition(targetPosition, xOffset), randomRadius, 0)
+        surface.create_entity {name = wormType, position = pos, force = biterForce, raise_built = true}
+    elseif wormsToSpawn == 2 then
+        local pos = Utils.RandomLocationInRadius(Utils.ApplyOffsetToPosition(targetPosition, {x = -1, y = 0}), randomRadius, 0)
+        surface.create_entity {name = wormType, position = pos, force = biterForce, raise_built = true}
+        pos = Utils.RandomLocationInRadius(Utils.ApplyOffsetToPosition(targetPosition, {x = 1, y = 0}), randomRadius, 0)
+        surface.create_entity {name = wormType, position = pos, force = biterForce, raise_built = true}
+    else
+        Logging.LogPrint("unsupported worm count for biter eggs mod: " .. wormsToSpawn)
+    end
     surface.create_entity {name = eggNestType .. "-corpse", position = targetPosition, force = biterForce, raise_built = false}
 end
 
