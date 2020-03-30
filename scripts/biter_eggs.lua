@@ -125,7 +125,7 @@ BiterEggs.CreateBiters = function(eggNestDetails)
         unitGroup = surface.create_unit_group {position = targetPosition, force = biterForce}
     end
     for i = 1, bitersToSpawn do
-        local biterType = BiterSelection.GetBiterType(eggSpawnerType, evolution)
+        local biterType = BiterSelection.GetBiterType("biters", eggSpawnerType, evolution)
         local foundPosition = surface.find_non_colliding_position(biterType, targetPosition, 0, 1)
         if foundPosition ~= nil then
             local biter = surface.create_entity {name = biterType, position = foundPosition, force = biterForce, raise_built = true}
@@ -157,7 +157,7 @@ BiterEggs.CreateWorms = function(eggNestDetails)
     end
 
     local evolution = Utils.RoundNumberToDecimalPlaces(biterForce.evolution_factor, 3)
-    local wormType = BiterSelection.GetWormType(evolution)
+    local wormType = BiterSelection.GetWormType("worms", evolution)
     if wormsToSpawn == 1 then
         local xOffset = {x = Utils.GetRandomFloatInRange(0 - singleWormXRandomOffset, singleWormXRandomOffset), y = 0}
         local pos = Utils.RandomLocationInRadius(Utils.ApplyOffsetToPosition(targetPosition, xOffset), randomRadius, 0)

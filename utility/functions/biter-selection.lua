@@ -6,10 +6,11 @@ local Utils = require("utility/utils")
 
 local BiterSelection = {}
 
-function BiterSelection.GetBiterType(spawnerType, evolution)
+function BiterSelection.GetBiterType(probabilityGlobalName, spawnerType, evolution)
+    --probabilityGlobalName is a name for tracking this biter evolution probability line. Use unique names if different evolutions are being tracked.
     global.UTILITYBITERSELECTION = global.UTILITYBITERSELECTION or {}
-    global.UTILITYBITERSELECTION.enemyProbabilities = global.UTILITYBITERSELECTION.enemyProbabilities or {}
-    local modEnemyProbabilities = global.UTILITYBITERSELECTION.enemyProbabilities
+    global.UTILITYBITERSELECTION[probabilityGlobalName] = global.UTILITYBITERSELECTION[probabilityGlobalName] or {}
+    local modEnemyProbabilities = global.UTILITYBITERSELECTION[probabilityGlobalName]
     if modEnemyProbabilities[spawnerType] == nil then
         modEnemyProbabilities[spawnerType] = {}
     end
@@ -56,11 +57,11 @@ function BiterSelection._CalculateSpecificBiterSelectionProbabilities(spawnerTyp
     return normalisedcurrentEvolutionProbabilities
 end
 
-function BiterSelection.GetWormType(evolution)
+function BiterSelection.GetWormType(wormEvoGlobalName, evolution)
+    --wormEvoGlobalName is a name for tracking this worm evolution line. Use unique names if different evolutions are being tracked.
     global.UTILITYBITERSELECTION = global.UTILITYBITERSELECTION or {}
-    global.UTILITYBITERSELECTION.wormEvoType = global.UTILITYBITERSELECTION.wormEvoType or {}
-
-    local wormEvoType = global.UTILITYBITERSELECTION.wormEvoType
+    global.UTILITYBITERSELECTION[wormEvoGlobalName] = global.UTILITYBITERSELECTION[wormEvoGlobalName] or {}
+    local wormEvoType = global.UTILITYBITERSELECTION[wormEvoGlobalName]
     evolution = Utils.RoundNumberToDecimalPlaces(evolution, 2)
     if wormEvoType.calculatedEvolution == nil or wormEvoType.calculatedEvolution ~= evolution then
         wormEvoType.calculatedEvolution = evolution
