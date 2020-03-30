@@ -82,7 +82,6 @@ BiterEggs.UpdateSetting = function(settingName)
 end
 
 BiterEggs.OnEntityDiedEggNests = function(event)
-    local x = remote.call("biter_eggs", "get_egg_post_destroyed_event_id")
     local deadEntity = event.entity
     EventScheduler.ScheduleEvent(
         event.tick + 1,
@@ -105,7 +104,7 @@ BiterEggs.EggPostDestroyed = function(event)
     if actionChance ~= nil then
         actionName = actionChance.name
     end
-    Events.RaiseEvent({name = "BiterEggs.EggPostDestroyed", actionName = actionName})
+    Events.RaiseEvent({name = "BiterEggs.EggPostDestroyed", actionName = actionName, eggNestDetails = eggNestDetails})
     if actionChance == nil then
         return
     end
