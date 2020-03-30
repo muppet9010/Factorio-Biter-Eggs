@@ -12,6 +12,17 @@ end
 
 BiterEggs.CreateGlobals = function()
     global.Settings = global.Settings or {}
+    global.Settings.biterSpawnChance = global.Settings.biterSpawnChance or 0
+    global.Settings.wormSpawnChance = global.Settings.wormSpawnChance or 0
+    global.Settings.eggNedstDiedActionChanceList = global.Settings.eggNedstDiedActionChanceList or {}
+    global.Settings.eggNestLargeBiterMinCount = global.Settings.eggNestLargeBiterMinCount or 0
+    global.Settings.eggNestLargeBiterMaxCount = global.Settings.eggNestLargeBiterMaxCount or 0
+    global.Settings.eggNestSmallBiterMinCount = global.Settings.eggNestSmallBiterMinCount or 0
+    global.Settings.eggNestSmallBiterMaxCount = global.Settings.eggNestSmallBiterMaxCount or 0
+    global.Settings.eggNestLargeWormMinCount = global.Settings.eggNestLargeWormMinCount or 0
+    global.Settings.eggNestLargeWormMaxCount = global.Settings.eggNestLargeWormMaxCount or 0
+    global.Settings.eggNestSmallWormMinCount = global.Settings.eggNestSmallWormMinCount or 0
+    global.Settings.eggNestSmallWormMaxCount = global.Settings.eggNestSmallWormMaxCount or 0
 end
 
 BiterEggs.UpdateSetting = function(settingName)
@@ -26,6 +37,35 @@ BiterEggs.UpdateSetting = function(settingName)
     end
     if settingName == "biters-per-small-egg-nest-max" or settingName == nil then
         global.Settings.eggNestSmallBiterMaxCount = tonumber(settings.global["biters-per-small-egg-nest-max"].value)
+    end
+    if settingName == "worms-per-large-egg-nest-min" or settingName == nil then
+        global.Settings.eggNestLargeWormMinCount = tonumber(settings.global["worms-per-large-egg-nest-min"].value)
+    end
+    if settingName == "worms-per-large-egg-nest-max" or settingName == nil then
+        global.Settings.eggNestLargeWormMaxCount = tonumber(settings.global["worms-per-large-egg-nest-max"].value)
+    end
+    if settingName == "worms-per-small-egg-nest-min" or settingName == nil then
+        global.Settings.eggNestSmallWormMinCount = tonumber(settings.global["worms-per-small-egg-nest-min"].value)
+    end
+    if settingName == "worms-per-small-egg-nest-max" or settingName == nil then
+        global.Settings.eggNestSmallWormMaxCount = tonumber(settings.global["worms-per-small-egg-nest-max"].value)
+    end
+
+    local chanceUpdated = false
+    if settingName == "egg-nest-biter-chance" or settingName == nil then
+        global.Settings.biterSpawnChance = tonumber(settings.global["egg-nest-biter-chance"].value)
+        chanceUpdated = true
+    end
+    if settingName == "egg-nest-worm-chance" or settingName == nil then
+        global.Settings.wormSpawnChance = tonumber(settings.global["egg-nest-worm-chance"].value)
+        chanceUpdated = true
+    end
+    if chanceUpdated then
+        local dataSet = {
+            {name = "biters", chance = global.Settings.biterSpawnChance},
+            {name = "worms", chance = global.Settings.wormSpawnChance}
+        }
+        global.Settings.eggNedstDiedActionChanceList = Utils.NormaliseChanceList(dataSet, "chance", true)
     end
 end
 
@@ -46,19 +86,22 @@ BiterEggs.OnEntityDiedEggNests = function(event)
 end
 
 BiterEggs.EggPostDestroyed = function(event)
-    NEED to choose if to place worm, biters or nothing.
-    local biterForce = event.data.force
-    local evolution = Utils.RoundNumberToDecimalPlaces(biterForce.evolution_factor, 3)
-    local wormType = BiterSelection.GetWormType(evolution)
-    BiterEggs.CreateBiters(event)
+    local eggNestDetails = event.data
+    local actionChance = Utils.GetRandomEntryFromNormalisedDataSet(global.Settings.eggNedstDiedActionChanceList, "chance")
+    local actionName = actionChance.name
+    if actionName == "biters" then
+        BiterEggs.CreateBiters(eggNestDetails)
+    elseif actionName == "worms" then
+        BiterEggs.CreateWorms(eggNestDetails)
+    end
 end
 
-BiterEggs.CreateBiters = function(event)
-    local surface = event.data.surface
-    local targetPosition = event.data.position
-    local biterForce = event.data.force
-    local eggNestType = event.data.entityType
-    local attackCommandTarget = event.data.killerEntity
+BiterEggs.CreateBiters = function(eggNestDetails)
+    local surface = eggNestDetails.surface
+    local targetPosition = eggNestDetails.position
+    local biterForce = eggNestDetails.force
+    local eggNestType = eggNestDetails.entityType
+    local attackCommandTarget = eggNestDetails.killerEntity
 
     local bitersToSpawn = 0
     if eggNestType == "biter-egg-nest-large" then
@@ -89,6 +132,28 @@ BiterEggs.CreateBiters = function(event)
     if unitGroup ~= nil then
         unitGroup.set_command({type = defines.command.go_to_location, destination = attackCommandTarget.position})
     end
+end
+
+BiterEggs.CreateWorms = function(eggNestDetails)
+    local surface = eggNestDetails.surface
+    local targetPosition = eggNestDetails.position
+    local biterForce = eggNestDetails.force
+    local eggNestType = eggNestDetails.entityType
+
+    local wormsToSpawn = 0
+    if eggNestType == "biter-egg-nest-large" then
+        wormsToSpawn = math.random(global.Settings.eggNestLargeWormMinCount, global.Settings.eggNestLargeWormMaxCount)
+    elseif eggNestType == "biter-egg-nest-small" then
+        wormsToSpawn = math.random(global.Settings.eggNestSmallWormMinCount, global.Settings.eggNestSmallWormMaxCount)
+    end
+    if wormsToSpawn == 0 then
+        return
+    end
+
+    local evolution = Utils.RoundNumberToDecimalPlaces(biterForce.evolution_factor, 3)
+    local wormType = BiterSelection.GetWormType(evolution)
+    surface.create_entity {name = wormType, position = targetPosition, force = biterForce, raise_built = true}
+    surface.create_entity {name = eggNestType .. "-corpse", position = targetPosition, force = biterForce, raise_built = false}
 end
 
 return BiterEggs

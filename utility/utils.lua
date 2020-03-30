@@ -456,12 +456,16 @@ function Utils.WasCreativeModeInstantDeconstructionUsed(event)
     end
 end
 
-function Utils.NormaliseChanceList(dataSet, chancePropertyName)
+function Utils.NormaliseChanceList(dataSet, chancePropertyName, skipFillingEmptyChance)
+    --By default the dataSet's total chance is manipulated in to a 0-1 range. But if optional skipFillingEmptyChance is set to true then total chance below 1 will not be scaled up, so that nil results can be had in random selection.
     local totalChance = 0
     for _, v in pairs(dataSet) do
         totalChance = totalChance + v[chancePropertyName]
     end
-    local multiplier = 1 / totalChance
+    local multiplier = 1
+    if not skipFillingEmptyChance or (skipFillingEmptyChance and totalChance > 1) then
+        multiplier = 1 / totalChance
+    end
     for _, v in pairs(dataSet) do
         v[chancePropertyName] = v[chancePropertyName] * multiplier
     end
@@ -479,6 +483,7 @@ function Utils.GetRandomEntryFromNormalisedDataSet(dataSet, chancePropertyName)
         end
         chanceRangeLow = chanceRangeHigh
     end
+    return nil
 end
 
 function Utils.DisableSiloScript()
