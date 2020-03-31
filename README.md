@@ -46,5 +46,5 @@ Returns the event ID for the "BiterEggs.EggPostDestroyed" event.
 
 
 Contributors
------------
+==========
 Thanks to Hornwitser for some egg nest graphics.
