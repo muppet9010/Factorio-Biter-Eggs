@@ -1,16 +1,26 @@
 ---------------------------------------------------------------------------------------------------
-Version: 18.0.3
-Date: 2020-01-26
+Version: 18.0.4
+Date: 2020-03-30
   Features:
-    - Updated to Facotrio 0.18 as-is
+    - Added worms as option to spawn from destoreyd egg nests.
+    - Added chance options to balance biters, worms or nothing spawning from a destroeyd egg nest.
+    - Added event and remote interface for other mods to subscribe to egg nests being destroyed.
   Changes:
   Bugfixes:
   Info:
- ---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+Version: 18.0.3
+Date: 2020-01-26
+  Features:
+    - Updated to Factorio 0.18 as-is
+  Changes:
+  Bugfixes:
+  Info:
+---------------------------------------------------------------------------------------------------
 Version: 17.0.2
 Date: 2019-12-15
   Features:
-    - Biters from egg nests will target the location of the killer of the egg nest. This is the same behaviour as artillery pieces attackign worms, etc.
+    - Biters from egg nests will target the location of the killer of the egg nest. This is the same behaviour as artillery pieces attacking worms, etc.
   Changes:
   Bugfixes:
   Info:
