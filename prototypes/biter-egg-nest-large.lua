@@ -24,6 +24,7 @@ data:extend(
         {
             type = "simple-entity-with-force",
             name = "biter-egg-nest-large",
+            enemy_map_color = {r = 0.54, g = 0.0, b = 0.0},
             flags = {"placeable-player", "placeable-enemy", "not-flammable", "not-repairable", "placeable-off-grid"},
             icon = Constants.AssetModName .. "/graphics/icon/biter-egg-nest-large-1.png",
             icon_size = 242,

@@ -24,6 +24,7 @@ data:extend(
         {
             type = "simple-entity-with-force",
             name = "biter-egg-nest-small",
+            enemy_map_color = {r = 0.54, g = 0.0, b = 0.0},
             flags = {"placeable-player", "placeable-enemy", "not-flammable", "not-repairable", "placeable-off-grid"},
             icon = Constants.AssetModName .. "/graphics/icon/biter-egg-nest-small-1.png",
             icon_size = 125,
@@ -70,15 +71,15 @@ data:extend(
             final_render_layer = "remnants",
             animation = {
                 layers = {
-                {
-                    width = 125,
-                    height = 100,
-                    scale = 0.8,
-                    frame_count = 1,
-                    direction_count = 1,
-                    filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-small-1-corpse.png"
+                    {
+                        width = 125,
+                        height = 100,
+                        scale = 0.8,
+                        frame_count = 1,
+                        direction_count = 1,
+                        filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-small-1-corpse.png"
+                    }
                 }
-            }
             }
         },
         {
