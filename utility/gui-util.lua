@@ -25,7 +25,7 @@ GuiUtil.AddElement = function(elementDetails)
     elementDetails.name = GuiUtil.GenerateGuiElementName(elementDetails.name, elementDetails.type)
     elementDetails.caption = GuiUtil._ReplaceSelfWithGeneratedName(elementDetails, "caption")
     elementDetails.tooltip = GuiUtil._ReplaceSelfWithGeneratedName(elementDetails, "tooltip")
-    if string.sub(elementDetails.style, 1, 7) == "muppet_" then
+    if elementDetails.style ~= nil and string.sub(elementDetails.style, 1, 7) == "muppet_" then
         elementDetails.style = elementDetails.style .. StyleDataStyleVersion
     end
     local returnElements = {}
@@ -84,7 +84,7 @@ GuiUtil.AddElement = function(elementDetails)
     end
 end
 
---Gets a specific name and type from the returned elements table from the GuiUtil.AddElement() function.
+-- Gets a specific name and type from the returned elements table from the GuiUtil.AddElement() function.
 GuiUtil.GetNameFromReturnedElements = function(returnedElements, elementName, elementType)
     if returnedElements == nil then
         return nil
@@ -109,11 +109,18 @@ GuiUtil.GetElementFromPlayersReferenceStorage = function(playerIndex, storeName,
     return global.GUIUtilPlayerElementReferenceStorage[playerIndex][storeName][GuiUtil.GenerateGuiElementName(name, type)]
 end
 
---Similar options as AddElement where arguments exist. Some don't make sense for updating and so not supported.
+-- Similar options as AddElement where arguments exist. Some don't make sense for updating and so not supported.
 GuiUtil.UpdateElementFromPlayersReferenceStorage = function(playerIndex, storeName, name, type, arguments, ignoreMissingElement)
     ignoreMissingElement = ignoreMissingElement or false
     local element = GuiUtil.GetElementFromPlayersReferenceStorage(playerIndex, storeName, name, type)
     if element ~= nil then
+        if not element.valid then
+            Logging.LogPrint(
+                "WARNING: Muppet GUI - A mod tried to update a GUI, buts the GUI is invalid. This is either a bug, or another mod deleted this GUI. Hopefully closing the affected GUI and re-opening it will resolve this. GUI details: player: '" ..
+                    game.get_player(playerIndex).name .. "', storeName: '" .. storeName .. "', guiElementName: '" .. name .. "', guiElementType '" .. type .. "'"
+            )
+            return
+        end
         local generatedName = GuiUtil.GenerateGuiElementName(name, type)
         if arguments.styling ~= nil then
             GuiUtil._ApplyStylingArgumentsToElement(element, arguments.styling)
@@ -194,6 +201,9 @@ GuiUtil.DestroyPlayersReferenceStorage = function(playerIndex, storeName)
 end
 
 GuiUtil._ApplyStylingArgumentsToElement = function(element, stylingArgs)
+    if element == nil or (not element.valid) then
+        return
+    end
     if stylingArgs.column_alignments ~= nil then
         for k, v in pairs(stylingArgs.column_alignments) do
             element.style.column_alignments[k] = v
@@ -219,7 +229,7 @@ GuiUtil._ReplaceSelfWithGeneratedName = function(arguments, argName)
 end
 
 GuiUtil.GenerateGuiElementName = function(name, type)
-    if name == nil then
+    if name == nil or type == nil then
         return nil
     else
         return Constants.ModName .. "-" .. name .. "-" .. type

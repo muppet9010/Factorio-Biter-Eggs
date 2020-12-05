@@ -6,11 +6,10 @@ local EventScheduler = require("utility/event-scheduler")
 local BiterSelection = require("utility/functions/biter-selection")
 
 BiterEggs.OnLoad = function()
-    Events.RegisterEvent(defines.events.on_entity_died, "EggNests", {{filter = "name", name = "biter-egg-nest-large"}, {filter = "name", name = "biter-egg-nest-small"}})
-    Events.RegisterHandler(defines.events.on_entity_died, "BiterEggs.OnEntityDiedEggNests", BiterEggs.OnEntityDiedEggNests)
+    Events.RegisterHandlerEvent(defines.events.on_entity_died, "BiterEggs.OnEntityDiedEggNests", BiterEggs.OnEntityDiedEggNests, "EggNests", {{filter = "name", name = "biter-egg-nest-large"}, {filter = "name", name = "biter-egg-nest-small"}})
     EventScheduler.RegisterScheduledEventType("BiterEggs.EggPostDestroyed", BiterEggs.EggPostDestroyed)
 
-    local eggPostDestroyed_eventId = Events.RegisterEvent("BiterEggs.EggPostDestroyed")
+    local eggPostDestroyed_eventId = Events.RegisterCustomEventName("BiterEggs.EggPostDestroyed")
     remote.remove_interface("biter_eggs")
     remote.add_interface(
         "biter_eggs",
@@ -140,7 +139,7 @@ BiterEggs.CreateBiters = function(eggNestDetails)
     end
     for i = 1, bitersToSpawn do
         local biterType = BiterSelection.GetBiterType("biters", eggSpawnerType, evolution)
-        local foundPosition = surface.find_non_colliding_position(biterType, targetPosition, 0, 1)
+        local foundPosition = surface.find_non_colliding_position(biterType, targetPosition, 2, 0.2)
         if foundPosition ~= nil then
             local biter = surface.create_entity {name = biterType, position = foundPosition, force = biterForce, raise_built = true}
             if biter ~= nil and unitGroup ~= nil then
@@ -174,13 +173,22 @@ BiterEggs.CreateWorms = function(eggNestDetails)
     local wormType = BiterSelection.GetWormType("worms", evolution)
     if wormsToSpawn == 1 then
         local xOffset = {x = Utils.GetRandomFloatInRange(0 - singleWormXRandomOffset, singleWormXRandomOffset), y = 0}
-        local pos = Utils.RandomLocationInRadius(Utils.ApplyOffsetToPosition(targetPosition, xOffset), randomRadius, 0)
-        surface.create_entity {name = wormType, position = pos, force = biterForce, raise_built = true}
+        local randomPosition = Utils.RandomLocationInRadius(Utils.ApplyOffsetToPosition(targetPosition, xOffset), randomRadius, 0)
+        local foundPosition = surface.find_non_colliding_position(wormType, randomPosition, 2, 0.2)
+        if foundPosition ~= nil then
+            surface.create_entity {name = wormType, position = foundPosition, force = biterForce, raise_built = true}
+        end
     elseif wormsToSpawn == 2 then
-        local pos = Utils.RandomLocationInRadius(Utils.ApplyOffsetToPosition(targetPosition, {x = -1, y = 0}), randomRadius, 0)
-        surface.create_entity {name = wormType, position = pos, force = biterForce, raise_built = true}
-        pos = Utils.RandomLocationInRadius(Utils.ApplyOffsetToPosition(targetPosition, {x = 1, y = 0}), randomRadius, 0)
-        surface.create_entity {name = wormType, position = pos, force = biterForce, raise_built = true}
+        local randomPosition = Utils.RandomLocationInRadius(Utils.ApplyOffsetToPosition(targetPosition, {x = -1.5, y = 0}), randomRadius, 0)
+        local foundPosition = surface.find_non_colliding_position(wormType, randomPosition, 2, 0.2)
+        if foundPosition ~= nil then
+            surface.create_entity {name = wormType, position = foundPosition, force = biterForce, raise_built = true}
+        end
+        randomPosition = Utils.RandomLocationInRadius(Utils.ApplyOffsetToPosition(targetPosition, {x = 1.5, y = 0}), randomRadius, 0)
+        foundPosition = surface.find_non_colliding_position(wormType, randomPosition, 2, 0.2)
+        if foundPosition ~= nil then
+            surface.create_entity {name = wormType, position = foundPosition, force = biterForce, raise_built = true}
+        end
     else
         Logging.LogPrint("unsupported worm count for biter eggs mod: " .. wormsToSpawn)
     end

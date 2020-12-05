@@ -38,8 +38,8 @@ data:extend(
                     percent = 100
                 }
             },
-            collision_box = {{-2, -1.1}, {2, 1.1}},
-            selection_box = {{-2.3, -1.4}, {2.3, 1.4}},
+            collision_box = {{-2.9, -1.3}, {2.9, 1.3}},
+            selection_box = {{-3.2, -1.7}, {3.2, 1.7}},
             vehicle_impact_sound = {filename = "__base__/sound/car-stone-impact.ogg", volume = 1.0},
             render_layer = "object",
             picture = {
@@ -48,7 +48,7 @@ data:extend(
                         filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-large-1.png",
                         width = 600,
                         height = 300,
-                        scale = 0.4
+                        scale = 0.6
                     }
                 }
             },
@@ -62,8 +62,8 @@ data:extend(
             flags = {"placeable-neutral", "placeable-off-grid", "not-on-map"},
             icon = Constants.AssetModName .. "/graphics/icon/biter-egg-nest-large-1-corpse.png",
             icon_size = 242,
-            collision_box = {{-2, -1.1}, {2, 1.1}},
-            selection_box = {{-2.3, -1.4}, {2.3, 1.4}},
+            collision_box = {{-2.9, -1.3}, {2.9, 1.3}},
+            selection_box = {{-3.2, -1.7}, {3.2, 1.7}},
             selectable_in_game = false,
             time_before_removed = 15 * 60 * 60, --same as spawners
             subgroup = "corpses",
@@ -74,7 +74,7 @@ data:extend(
                     {
                         width = 600,
                         height = 300,
-                        scale = 0.4,
+                        scale = 0.6,
                         frame_count = 1,
                         direction_count = 1,
                         filename = Constants.AssetModName .. "/graphics/entity/biter-egg-nest-large-1-corpse.png"

@@ -1,13 +1,13 @@
 {
     "name": "biter_eggs",
-    "version": "18.0.5",
+    "version": "20.1.6",
     "title": "Biter Eggs",
     "author": "Muppet9010",
     "contact": "",
     "homepage": "https://mods.factorio.com/mod/biter_eggs",
-    "factorio_version": "0.18",
+    "factorio_version": "1.1",
     "dependencies": [
-        "base >= 0.18.17"
+        "base >= 1.1.0"
     ],
     "description": "Biters come from eggs obviously"
 }
