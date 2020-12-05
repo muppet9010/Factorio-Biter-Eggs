@@ -1,0 +1,4 @@
+TODO:
+  - Add a placement check for worms from nests as apparently they can overlap beyond the nest area.
+
+Future:
