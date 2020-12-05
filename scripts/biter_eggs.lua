@@ -6,11 +6,10 @@ local EventScheduler = require("utility/event-scheduler")
 local BiterSelection = require("utility/functions/biter-selection")
 
 BiterEggs.OnLoad = function()
-    Events.RegisterEvent(defines.events.on_entity_died, "EggNests", {{filter = "name", name = "biter-egg-nest-large"}, {filter = "name", name = "biter-egg-nest-small"}})
-    Events.RegisterHandler(defines.events.on_entity_died, "BiterEggs.OnEntityDiedEggNests", BiterEggs.OnEntityDiedEggNests)
+    Events.RegisterHandlerEvent(defines.events.on_entity_died, "BiterEggs.OnEntityDiedEggNests", BiterEggs.OnEntityDiedEggNests, "EggNests", {{filter = "name", name = "biter-egg-nest-large"}, {filter = "name", name = "biter-egg-nest-small"}})
     EventScheduler.RegisterScheduledEventType("BiterEggs.EggPostDestroyed", BiterEggs.EggPostDestroyed)
 
-    local eggPostDestroyed_eventId = Events.RegisterEvent("BiterEggs.EggPostDestroyed")
+    local eggPostDestroyed_eventId = Events.RegisterCustomEventName("BiterEggs.EggPostDestroyed")
     remote.remove_interface("biter_eggs")
     remote.add_interface(
         "biter_eggs",

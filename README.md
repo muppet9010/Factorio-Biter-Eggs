@@ -25,10 +25,10 @@ Mod Compatibility
 Events and Remote Interfaces
 ======
 
-Event "BiterEggs.EggPostDestroyed"
+Egg Next Post Destroyed
 --------------
 
-Called when an egg nest is destroyed, but before anything is created in its place by the mod. Includes the values:
+Called when an egg nest is destroyed, but before anything is created in its place by the mod. Returns the below attributes in the event object:
 
 - actionName: either the value "biters", "worms" or nil if no action type has been selected based on chance.
 - eggNestDetails:
@@ -39,10 +39,7 @@ Called when an egg nest is destroyed, but before anything is created in its plac
     - entityType: the name of the destroyed nest, either "biter-egg-nest-large" or "biter-egg-nest-small"
     - killerEntity: the entity that killed the nest if known
 
-Remote Interface "biter_eggs", "get_egg_post_destroyed_event_id"
-------------------
-
-Returns the event ID for the "BiterEggs.EggPostDestroyed" event.
+Use the remote interface "biter_eggs", "get_egg_post_destroyed_event_id" to get the event ID to register for.
 
 
 Contributors
