@@ -1,11 +1,15 @@
 ---------------------------------------------------------------------------------------------------
-Version: 20.0.6
+Version: 20.1.6
 Date: 2020-12-05
   Features:
     - Updated to Factorio 1.1 as-is
   Changes:
+    - Egg nests have bigger hitboxes and graphics to make room for max behemoth worms nicely. This may cause overlaps in old saves.
+    - Biters and worms from nests won't risk overlapping other entities and placement search logic tweaked.
   Bugfixes:
+    - Worms placed can't overlap entities around them, espically vehicles rammign the nests.
   Info:
+    - Minor version change as collision box changes may affect old mod version saves negatively.
 ---------------------------------------------------------------------------------------------------
 Version: 18.0.5
 Date: 2020-04-23

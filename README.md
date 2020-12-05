@@ -10,7 +10,7 @@ Mod Features
 
 - The biter egg nests can have their frequency set with a simple mod setting, ranging from rare to everywhere.
 - When a biter egg nest is destroyed either biters/spitters or worms will be released based on mod chance settings. If an egg nest contains biters/spitters it is either all biters or spitters.
-- The number of biters/spitters or worms is based on a configurable min/max range for the small and large biter egg nest sizes.
+- The number of biters/spitters or worms is based on a configurable min/max range for the small and large biter egg nest sizes. They must be able to fit in to the area around the nest.
 - All enemy types will be evolution appropriate and match the games current evolution ranges.
 - Killing egg nests does not increase evolution and they only react when killed.
 - Egg nests are on the enemy team and so will be targeted by turrets and players auto target fire.
